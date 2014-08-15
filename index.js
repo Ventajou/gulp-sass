@@ -1,9 +1,10 @@
-var fs    = require('fs')
-  , map   = require('map-stream')
-  , sass  = require('node-sass')
-  , path  = require('path')
-  , gutil = require('gulp-util')
-  , ext   = gutil.replaceExtension
+var fs    	   = require('fs')
+  , map   	   = require('map-stream')
+  , sass  	   = require('node-sass')
+  , path  	   = require('path')
+  , gutil 	   = require('gulp-util')
+  , applySourceMap = require('vinyl-sourcemaps-apply')
+  , ext   	   = gutil.replaceExtension
   ;
 
 module.exports = function (options) {
@@ -41,12 +42,7 @@ module.exports = function (options) {
       if (typeof opts.onSuccess === 'function') opts.onSuccess(css, map);
 
       if (map) {
-        map = JSON.parse(map);
-        map.sourcesContent = getSourcesContent(map.sources);
-        sourceMap = new Buffer(JSON.stringify(map)).toString('base64');
-        css = css.replace(/\/\*# sourceMappingURL=.*\*\//,
-                          "/*# sourceMappingURL=data:application/json;base64," +
-                          sourceMap + "*/");
+	applySourceMap(file, map);
       }
 
       file.path      = ext(file.path, '.css');
